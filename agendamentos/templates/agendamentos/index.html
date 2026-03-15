@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda do Consultório</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; padding-top: 30px; }
+        .container { max-width: 1100px; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .card-stats { transition: 0.3s; border-left: 5px solid #0d6efd; }
+        .card-stats:hover { transform: translateY(-5px); }
+        .table thead { background-color: #0d6efd; color: white; }
+        .btn-novo { border-radius: 30px; padding: 10px 25px; font-weight: bold; font-size: 0.9em; }
+        .status-badge { font-size: 0.85em; padding: 5px 10px; border-radius: 20px; }
+        .btn-action { padding: 6px 10px; border-radius: 8px; transition: 0.2s; text-decoration: none; display: inline-block; }
+        .btn-action:hover { transform: scale(1.1); }
+        .search-bar { border-radius: 20px 0 0 20px; }
+        .search-btn { border-radius: 0 20px 20px 0; }
+        .user-link:hover { opacity: 0.8; }
+        .age-badge { font-size: 0.7em; background-color: #e9ecef; color: #495057; padding: 2px 6px; border-radius: 4px; font-weight: normal; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <small class="text-muted">
+                Bem-vindo, 
+                <a href="{% url 'perfil' %}" class="text-decoration-none fw-bold text-primary user-link" title="Editar Perfil">
+                    👤 {{ user.username }}
+                </a>
+            </small>
+            {% if user.is_superuser %}
+                <span class="badge bg-dark ms-2" style="font-size: 0.7em;">Administrador</span>
+            {% endif %}
+        </div>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-link btn-sm text-danger text-decoration-none p-0">Sair do Sistema</button>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-secondary m-0">🦷 Agenda do Consultório</h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'gerar_relatorio_pdf' %}" class="btn btn-outline-secondary btn-novo shadow-sm" target="_blank">
+                🖨️ PDF
+            </a>
+            
+            <div class="btn-group">
+                <a href="{% url 'lista_pacientes' %}" class="btn btn-outline-success btn-novo shadow-sm" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                    👥 Pacientes
+                </a>
+                <a href="{% url 'novo_dentista' %}" class="btn btn-outline-info btn-novo shadow-sm" style="border-radius: 0;">
+                    + Dentista
+                </a>
+                <a href="{% url 'novo_paciente' %}" class="btn btn-outline-primary btn-novo shadow-sm" style="border-radius: 0;">
+                    + Paciente
+                </a>
+                <a href="{% url 'novo_agendamento' %}" class="btn btn-primary btn-novo shadow-sm" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    + Agendamento
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card card-stats p-3 bg-white">
+                <small class="text-muted fw-bold">TOTAL GERAL</small>
+                <h3 class="m-0 text-primary">{{ total_agendados }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats p-3 bg-white" style="border-left-color: #ffc107;">
+                <small class="text-muted fw-bold">PENDENTES</small>
+                <h3 class="m-0 text-warning">{{ total_pendentes }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats p-3 bg-white" style="border-left-color: #198754;">
+                <small class="text-muted fw-bold">CONCLUÍDOS</small>
+                <h3 class="m-0 text-success">{{ total_concluidos }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-stats p-3 bg-white" style="border-left-color: #6c757d;">
+                <small class="text-muted fw-bold">BUSCAR NA AGENDA</small>
+                <form method="GET" class="d-flex mt-1">
+                    <input type="text" name="search" class="form-control form-control-sm search-bar" placeholder="Nome do paciente..." value="{{ request.GET.search }}">
+                    <button type="submit" class="btn btn-primary btn-sm search-btn">🔎</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th class="border-0">Data e Hora</th>
+                        <th class="border-0">Paciente</th>
+                        <th class="border-0">Dentista</th>
+                        <th class="border-0 text-center">Status</th>
+                        <th class="border-0 text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for consulta in consultas %}
+                    <tr>
+                        <td class="fw-bold text-dark">{{ consulta.data_hora|date:"d/m/Y - H:i" }}</td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-medium">{{ consulta.paciente.nome }}</span>
+                                <div><span class="age-badge">{{ consulta.paciente.idade }} anos</span></div>
+                            </div>
+                        </td>
+                        <td>Dr(a). {{ consulta.dentista.nome }}</td>
+                        <td class="text-center">
+                            {% if consulta.status == 'agendado' %}
+                                <span class="badge bg-info text-dark status-badge">Agendado</span>
+                            {% elif consulta.status == 'concluido' %}
+                                <span class="badge bg-success status-badge">Concluído</span>
+                            {% else %}
+                                <span class="badge bg-danger status-badge">Cancelado</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                {% if consulta.status == 'agendado' %}
+                                <a href="{% url 'concluir_agendamento' consulta.pk %}" class="btn btn-outline-success btn-sm btn-action" title="Concluir Agora">
+                                    ✅
+                                </a>
+                                {% endif %}
+
+                                <a href="{% url 'editar_agendamento' consulta.pk %}" class="btn btn-outline-warning btn-sm btn-action" title="Editar Agendamento">
+                                    ✏️
+                                </a>
+                                <a href="{% url 'excluir_agendamento' consulta.pk %}" class="btn btn-outline-danger btn-sm btn-action" title="Excluir Agendamento">
+                                    🗑️
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            {% if request.GET.search %}
+                                🔍 Nenhum agendamento encontrado para "<strong>{{ request.GET.search }}</strong>".
+                                <br><a href="{% url 'index' %}" class="btn btn-link btn-sm mt-2">Limpar busca</a>
+                            {% else %}
+                                📅 Não há consultas registradas no momento.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if editando %}Editar{% else %}Cadastrar{% endif %} Paciente - Consultório</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; min-height: 100vh; display: flex; align-items: center; }
+        .form-card { 
+            background: white; padding: 40px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 600px; 
+            border-top: 8px solid {% if editando %}#ffc107{% else %}#198754{% endif %};
+        }
+        .btn-save { border-radius: 30px; padding: 12px; font-weight: bold; transition: 0.3s; }
+        .form-label { font-weight: 600; color: #495057; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="container d-flex justify-content-center py-5">
+    <div class="form-card mx-auto">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold {% if editando %}text-warning{% else %}text-success{% endif %}">
+                {% if editando %}✏️ Editar Paciente{% else %}🆕 Novo Paciente{% endif %}
+            </h2>
+            <p class="text-muted small">
+                {% if editando %}Atualize as informações do prontuário abaixo{% else %}Insira os dados pessoais para o novo prontuário{% endif %}
+            </p>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    
+                    {{ field }}
+
+                    {% if field.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in field.errors %}
+                                <strong>⚠️ {{ error|striptags }}</strong>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <script>
+                        var input = document.getElementsByName("{{ field.name }}")[0];
+                        if (input) {
+                            input.classList.add("form-control");
+                            if ("{{ field.name }}" == "data_nascimento") {
+                                input.setAttribute("type", "date");
+                            }
+                        }
+                    </script>
+                </div>
+            {% endfor %}
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn {% if editando %}btn-warning text-dark{% else %}btn-success{% endif %} btn-save shadow-sm">
+                    {% if editando %}Salvar Alterações{% else %}Cadastrar Paciente{% endif %}
+                </button>
+                
+                <a href="{% if editando %}{% url 'lista_pacientes' %}{% else %}{% url 'index' %}{% endif %}" class="btn btn-link text-decoration-none text-muted small text-center">
+                    Cancelar e Voltar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

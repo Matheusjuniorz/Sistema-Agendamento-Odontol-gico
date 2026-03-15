@@ -1,0 +1,11 @@
+<div class="container mt-5">
+    <div class="card p-4 mx-auto" style="max-width: 500px;">
+        <h3>Tem certeza?</h3>
+        <p>Você está prestes a excluir o agendamento de <strong>{{ agendamento.paciente.nome }}</strong>.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+            <a href="{% url 'index' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
