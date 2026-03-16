@@ -17,32 +17,26 @@ O **OdontoClean** é uma aplicação web completa desenvolvida em Django para ge
 - **Frontend:** Bootstrap 5 / Bootstrap Icons / Animate.css
 - **Banco de Dados:** SQLite (Desenvolvimento)
 - **Segurança:** Python-Dotenv
-- **Relatórios:** ReportLab (ou biblioteca utilizada para o PDF)
+- **Relatórios:** ReportLab
 
 ## 📦 Como Instalar e Rodar o Projeto
 
-1. Clonar o Repositório
+1. **Clonar o Repositório**
 ```bash
-git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
-cd seu-repositorio
+git clone [https://github.com/Matheusjuniorz/Sistema-Agendamento-Odontol-gico.git](https://github.com/Matheusjuniorz/Sistema-Agendamento-Odontol-gico.git)
+cd Sistema-Agendamento-Odontol-gico
 
 2. Criar e ativar o ambiente virtual
 
 python -m venv venv
-
-# Windows:
-venv\Scripts\activate
-
-# Linux/Mac:
-source venv/bin/activate
+# Windows: venv\Scripts\activate | Linux/Mac: source venv/bin/activate
 
 3. Instalar as Dependências
 
 pip install -r requirements.txt
 
-4. Configurar as Variáveis ​​de Ambiente
-
-Crie um arquivo .envna raiz do projeto seguindo o modelo abaixo:
+4. Configurar as Variáveis ​​de Ambiente 
+Crie um arquivo .envna raiz do projeto:
 
 SECRET_KEY=sua_chave_secreta
 DEBUG=True
@@ -53,30 +47,27 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 python manage.py migrate
 python manage.py runserver
 
-## 🎨 Interface
+## 🎨 Interface do Sistema
 
-Aqui estão algumas capturas de tela do sistema em funcionamento:
+![Agenda](screenshots/agenda.png)
 
-![Agenda](./screenshots/agenda.png)
+![Perfil](screenshots/configuracoes_de_perfil.png)
 
-![Configurações de Perfil](./screenshots/configuracoes_de_perfil.png)
+![Dentistas](screenshots/lista_dentista.png)
 
-![Profissionais ativos e credenciados](./screenshots/lista_dentista.png)
+![Pacientes](screenshots/lista_pacientes.png)
 
-![Gestão de Pacientes](./screenshots/lista_pacientes.png)
+![Novo Dentista](screenshots/novo_dentista.png)
 
-![Novo Dentista](./screenshots/novo_dentista.png)
+![Procedimento](screenshots/novo_procedimento.png)
 
-![Configurar Procedimento](./screenshots/novo_procedimento.png)
+![Performance](screenshots/performance.png)
 
-![Performance](./screenshots/performance.png)
-
-![Remover da Agenda](./screenshots/remover_da_agenda.png)
-
+![Remover](screenshots/remover_da_agenda.png)
 
 
 📄 Licença
-Este projeto está sob licença MIT. Veja o arquivoLICENÇApara mais detalhes.
 
-Desenvolvido por Matheus Juninior - [https://www.linkedin.com/in/matheus-junior-z/]
+Este projeto está sob licença do MIT. Veja o arquivo LICENSEpara mais detalhes.
 
+Desenvolvido por Matheus Junior -LinkedIn
