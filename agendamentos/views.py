@@ -24,10 +24,9 @@ from .models import Agendamento
 
 
 def exportar_pdf(request):
-    periodo = request.GET.get('periodo', 'dia') # dia, mes ou ano
+    periodo = request.GET.get('periodo', 'dia')
     hoje = timezone.now()
     
-    # Filtragem dos dados
     if periodo == 'mes':
         agendamentos = Agendamento.objects.filter(data__month=hoje.month, data__year=hoje.year)
         titulo_relatorio = f"Relatório Mensal - {hoje.strftime('%m/%Y')}"
@@ -38,7 +37,6 @@ def exportar_pdf(request):
         agendamentos = Agendamento.objects.filter(data=hoje.date())
         titulo_relatorio = f"Relatório Diário - {hoje.strftime('%d/%m/%Y')}"
 
-    # Contexto para o template
     context = {
         'agendamentos': agendamentos,
         'titulo': titulo_relatorio,
@@ -46,14 +44,11 @@ def exportar_pdf(request):
         'total_procedimentos': agendamentos.count(),
     }
 
-    # Renderiza o HTML
     html_string = render_to_string('agendamentos/pdf_relatorio.html', context)
     
-    # Cria o PDF
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     pdf = html.write_pdf()
 
-    # Resposta do Navegador
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="relatorio_{periodo}.pdf"'
     return response
@@ -71,14 +66,12 @@ def editar_dentista(request, pk):
     else:
         form = DentistaForm(instance=dentista)
     
-    # Adicionado o prefixo 'agendamentos/'
     return render(request, 'agendamentos/form_dentista.html', {
         'form': form, 
         'titulo': 'Editar Dentista',
         'dentista': dentista
     })
 
-# Função para EXCLUIR dentista
 def excluir_dentista(request, pk):
     dentista = get_object_or_404(Dentista, pk=pk)
     
@@ -88,14 +81,13 @@ def excluir_dentista(request, pk):
         messages.warning(request, f"O Dr(a). {nome_dentista} foi removido do sistema.")
         return redirect('lista_dentistas')
     
-    # Adicionado o prefixo 'agendamentos/'
     return render(request, 'agendamentos/confirmar_exclusao_dentista.html', {
         'dentista': dentista
     })
 
 
 def lista_dentistas(request):
-    dentistas = Dentista.objects.all() # Puxa todos os dentistas do banco
+    dentistas = Dentista.objects.all() 
     return render(request, 'agendamentos/lista_dentistas.html', {'dentistas': dentistas})
 
 
@@ -109,8 +101,7 @@ def imprimir_ficha_consulta(request, consulta_id):
     p = canvas.Canvas(response, pagesize=A4)
     largura, altura = A4
 
-    # --- CABEÇALHO ---
-    p.setFillColor(colors.HexColor("#98b3db")) # Azul do seu sistema
+    p.setFillColor(colors.HexColor("#98b3db")) 
     p.rect(0, altura - 80, largura, 80, fill=1, stroke=0)
     
     p.setFillColor(colors.black)
@@ -120,10 +111,9 @@ def imprimir_ficha_consulta(request, consulta_id):
     p.setFont("Helvetica", 10)
     p.drawString(40, altura - 65, f"Gerado em: {timezone.now().strftime('%d/%m/%Y %H:%M')}")
 
-    # --- BOX: DADOS DO PACIENTE ---
     y = altura - 130
     p.setFillColor(colors.HexColor("#f8f9fa"))
-    p.roundRect(30, y - 70, largura - 60, 85, 10, fill=1, stroke=1) # Fundo cinza claro
+    p.roundRect(30, y - 70, largura - 60, 85, 10, fill=1, stroke=1) 
     
     p.setFillColor(colors.black)
     p.setFont("Helvetica-Bold", 12)
@@ -134,7 +124,6 @@ def imprimir_ficha_consulta(request, consulta_id):
     p.drawString(45, y - 38, f"Idade: {consulta.paciente.idade} anos")
     p.drawString(45, y - 56, f"WhatsApp: {consulta.paciente.telefone if hasattr(consulta.paciente, 'telefone') else '---'}")
 
-    # --- BOX: DETALHES DA CONSULTA ---
     y = y - 120
     p.setFillColor(colors.HexColor("#f8f9fa"))
     p.roundRect(30, y - 70, largura - 60, 85, 10, fill=1, stroke=1)
@@ -148,7 +137,6 @@ def imprimir_ficha_consulta(request, consulta_id):
     p.drawString(45, y - 38, f"Dentista Responsável: Dr(a). {consulta.dentista.nome}")
     p.drawString(45, y - 56, f"Procedimento: {consulta.procedimento.nome if consulta.procedimento else 'Consulta Geral'}")
 
-    # --- ÁREA DE ANOTAÇÕES (Com linhas elegantes) ---
     y = y - 110
     p.setFont("Helvetica-Bold", 12)
     p.drawString(40, y, "EVOLUÇÃO E OBSERVAÇÕES DO DENTISTA")
@@ -159,7 +147,6 @@ def imprimir_ficha_consulta(request, consulta_id):
         p.line(40, line_y, largura - 40, line_y)
         line_y -= 25
 
-    # --- RODAPÉ ---
     p.setFont("Helvetica-Oblique", 8)
     p.setFillColor(colors.grey)
     p.drawCentredString(largura/2, 30, "Este documento é para uso interno do consultório e contém dados confidenciais.")
@@ -177,7 +164,6 @@ def procedimento_excluir(request, pk):
     return render(request, 'agendamentos/confirmar_exclusao.html', {'objeto': procedimento})
 
 
-# 1. Correção da função NOVO
 def procedimento_novo(request):
     if request.method == "POST":
         form = ProcedimentoForm(request.POST)
@@ -187,28 +173,22 @@ def procedimento_novo(request):
     else:
         form = ProcedimentoForm()
     
-    # MUITO IMPORTANTE: Garanta que o dicionário está assim
     return render(request, 'agendamentos/form_procedimento.html', {'form': form})
 
-# 2. Correção da função EDITAR
 def procedimento_editar(request, pk):
     procedimento = get_object_or_404(Procedimento, pk=pk)
     
     if request.method == "POST":
-        # Usamos instance=procedimento para o Django saber que é uma edição
         form = ProcedimentoForm(request.POST, instance=procedimento)
         if form.is_valid():
             form.save()
             return redirect('procedimentos_lista')
     else:
-        # Enviamos o formulário preenchido com os dados do banco
         form = ProcedimentoForm(instance=procedimento)
     
-    # Mudança de 'proc' para 'form' para bater com o que o HTML espera
     return render(request, 'agendamentos/form_procedimento.html', {'form': form})
 
 
-# Lista os procedimentos
 def procedimentos_lista(request):
     procedimentos = Procedimento.objects.all().order_by('nome')
     return render(request, 'agendamentos/procedimentos.html', {'procedimentos': procedimentos})
@@ -218,22 +198,18 @@ def procedimentos_lista(request):
 def dashboard(request):
     hoje = timezone.now().date()
     
-    # Captura o ano do filtro ou usa o ano atual como padrão
     ano_selecionado = request.GET.get('ano')
     if not ano_selecionado:
         ano_selecionado = hoje.year
     else:
         ano_selecionado = int(ano_selecionado)
 
-    # Busca todos os anos que têm agendamentos (para o seletor)
     anos_disponiveis = Agendamento.objects.dates('data_hora', 'year', order='DESC')
     anos = [data.year for data in anos_disponiveis]
     
-    # Se a lista estiver vazia ou o ano atual não estiver lá, adicionamos manualmente
     if hoje.year not in anos:
         anos.append(hoje.year)
 
-    # --- FILTROS BASEADOS NO ANO SELECIONADO ---
     consultas_hoje = Agendamento.objects.filter(data_hora__date=hoje).order_by('data_hora')
 
     relatorio_mensal = Agendamento.objects.filter(data_hora__year=ano_selecionado) \
@@ -263,7 +239,7 @@ def dashboard(request):
         'pacientes_novos': pacientes_novos,
         'hoje': hoje,
         'ano_selecionado': ano_selecionado,
-        'anos': sorted(anos, reverse=True), # Passa a lista de anos para o HTML
+        'anos': sorted(anos, reverse=True), 
     }
     return render(request, 'agendamentos/dashboard.html', context)
 
@@ -285,7 +261,6 @@ def editar_paciente(request, pk):
         'paciente': paciente
     })
 
-# --- VIEW PARA EXCLUIR PACIENTE ---
 @login_required
 def excluir_paciente(request, pk):
     paciente = get_object_or_404(Paciente, pk=pk)
@@ -311,15 +286,12 @@ def lista_pacientes(request):
 
 @login_required
 def gerar_relatorio_pdf(request):
-    # Cria o objeto de resposta como PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="agenda_consultorio.pdf"'
 
-    # Cria o "palco" para desenhar o PDF
     p = canvas.Canvas(response, pagesize=A4)
     largura, altura = A4
 
-    # Cabeçalho
     p.setFont("Helvetica-Bold", 16)
     p.drawString(100, altura - 50, "🦷 Relatório de Agendamentos - Consultório")
     p.setFont("Helvetica", 10)
@@ -327,7 +299,6 @@ def gerar_relatorio_pdf(request):
     
     p.line(100, altura - 80, 500, altura - 80)
 
-    # Títulos da Tabela
     y = altura - 110
     p.setFont("Helvetica-Bold", 11)
     p.drawString(100, y, "Data/Hora")
@@ -335,13 +306,12 @@ def gerar_relatorio_pdf(request):
     p.drawString(380, y, "Dentista")
     p.drawString(480, y, "Status")
 
-    # Conteúdo
     y -= 20
     p.setFont("Helvetica", 10)
     consultas = Agendamento.objects.all().order_by('data_hora')
 
     for c in consultas:
-        if y < 50: # Cria nova página se acabar o espaço
+        if y < 50:
             p.showPage()
             y = altura - 50
         
@@ -351,7 +321,6 @@ def gerar_relatorio_pdf(request):
         p.drawString(480, y, c.status.capitalize())
         y -= 20
 
-    # Finaliza o PDF
     p.showPage()
     p.save()
     return response
@@ -363,21 +332,17 @@ def index(request):
     filtro_data = request.GET.get('data')
     hoje = timezone.now().date()
     
-    # 1. Base de consultas (começamos com todas)
     consultas = Agendamento.objects.all().order_by('data_hora')
 
-    # 2. Aplica Filtro de Busca por Nome (se houver)
     if busca:
         consultas = consultas.filter(paciente__nome__icontains=busca)
     
-    # 3. Aplica Filtro de Data (Hoje/Amanhã)
     if filtro_data == 'hoje':
         consultas = consultas.filter(data_hora__date=hoje)
     elif filtro_data == 'amanha':
         amanha = hoje + timedelta(days=1)
         consultas = consultas.filter(data_hora__date=amanha)
 
-    # 4. Cálculos para o Dashboard (Contagem total independente do filtro)
     total_agendados = Agendamento.objects.count()
     total_concluidos = Agendamento.objects.filter(status='concluido').count()
     total_pendentes = Agendamento.objects.filter(status='agendado').count()
@@ -397,10 +362,8 @@ def novo_agendamento(request):
     if request.method == 'POST':
         form = AgendamentoForm(request.POST)
         if form.is_valid():
-            # commit=False permite que a gente mexa no objeto antes de salvar no banco
             agendamento = form.save(commit=False)
             
-            # Se o agendamento tem um procedimento e o campo valor_final está vazio
             if agendamento.procedimento and not agendamento.valor_final:
                 agendamento.valor_final = agendamento.procedimento.valor
             
@@ -444,7 +407,6 @@ def novo_paciente(request):
     else:
         form = PacienteForm()
     
-    # AJUSTE AQUI: Use form_paciente.html
     return render(request, 'agendamentos/form_paciente.html', {'form': form, 'editando': False})
     return render(request, 'agendamentos/form_paciente.html', {'form': form, 'editando': False})
 
@@ -475,7 +437,6 @@ def registrar(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            # O ERRO ESTÁ AQUI: Use aspas no nome da rota!
             return redirect('index') 
     else:
         form = UserCreationForm()
@@ -485,7 +446,6 @@ def registrar(request):
 @login_required
 def perfil(request):
     if request.method == 'POST':
-        # Verifica qual formulário foi enviado
         if 'btn_perfil' in request.POST:
             form_perfil = EditarPerfilForm(request.POST, instance=request.user)
             form_senha = PasswordChangeForm(request.user)

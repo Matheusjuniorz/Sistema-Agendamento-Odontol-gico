@@ -26,7 +26,6 @@ class Paciente(models.Model):
     @property
     def idade(self):
         hoje = date.today()
-        # Subtrai os anos e ajusta se o aniversário ainda não chegou no ano atual
         return hoje.year - self.data_nascimento.year - (
             (hoje.month, hoje.day) < (self.data_nascimento.month, self.data_nascimento.day)
         )
@@ -44,10 +43,8 @@ class Agendamento(models.Model):
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
     data_hora = models.DateTimeField()
     
-    # ALTERE ESTA LINHA ABAIXO:
     procedimento = models.ForeignKey('Procedimento', on_delete=models.SET_NULL, null=True, blank=True)
     
-    # ADICIONE ESTA LINHA PARA SALVAR O VALOR COBRADO:
     valor_final = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='agendado')

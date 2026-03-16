@@ -1,5 +1,5 @@
 from django import forms
-from .models import Agendamento, Paciente, Dentista, Procedimento # Adicionado Procedimento
+from .models import Agendamento, Paciente, Dentista, Procedimento 
 from django.contrib.auth.models import User
 from datetime import date
 

@@ -123,13 +123,10 @@ STATIC_URL = 'static/'
 
 
 
-# Onde o usuário cai após o login
 LOGIN_REDIRECT_URL = 'index'
 
-# Onde ele cai após sair (logout)
 LOGOUT_REDIRECT_URL = 'login'
 
-# URL da página de login
 LOGIN_URL = 'login'
 
 
