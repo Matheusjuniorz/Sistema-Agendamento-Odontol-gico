@@ -22,7 +22,7 @@ O **OdontoClean** é uma aplicação web completa desenvolvida em Django para ge
 ## 📦 Como Instalar e Rodar o Projeto
 
 1. **Clonar o Repositório**
-```bash
+
 git clone [https://github.com/Matheusjuniorz/Sistema-Agendamento-Odontol-gico.git](https://github.com/Matheusjuniorz/Sistema-Agendamento-Odontol-gico.git)
 cd Sistema-Agendamento-Odontol-gico
 
