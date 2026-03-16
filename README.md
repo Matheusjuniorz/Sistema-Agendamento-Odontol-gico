@@ -49,22 +49,16 @@ python manage.py runserver
 
 ## 🎨 Interface do Sistema
 
+## 🎨 Interface do Sistema
+
 ![Agenda](screenshots/agenda.png)
-
 ![Perfil](screenshots/configuracoes_de_perfil.png)
-
 ![Dentistas](screenshots/lista_dentista.png)
-
 ![Pacientes](screenshots/lista_pacientes.png)
-
 ![Novo Dentista](screenshots/novo_dentista.png)
-
-![Procedimento](screenshots/novo_procedimento.png)
-
+![Procedimento](screenshots/novo_procedimentio.png)
 ![Performance](screenshots/performance.png)
-
 ![Remover](screenshots/remover_da_agenda.png)
-
 
 📄 Licença
 
