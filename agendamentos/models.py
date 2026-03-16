@@ -40,13 +40,26 @@ class Agendamento(models.Model):
         ('concluido', 'Concluído'),
     ]
 
-    # Corrigido: de on_status para on_delete
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE) 
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
-    
     data_hora = models.DateTimeField()
-    procedimento = models.TextField(blank=True, null=True)
+    
+    # ALTERE ESTA LINHA ABAIXO:
+    procedimento = models.ForeignKey('Procedimento', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # ADICIONE ESTA LINHA PARA SALVAR O VALOR COBRADO:
+    valor_final = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='agendado')
 
     def __str__(self):
         return f"{self.paciente} - {self.data_hora.strftime('%d/%m/%Y %H:%M')}"
+
+
+class Procedimento(models.Model):
+    nome = models.CharField(max_length=100, verbose_name="Nome do Procedimento")
+    descricao = models.TextField(blank=True, null=True, verbose_name="Descrição")
+    valor = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor (R$)")
+
+    def __clstr__(self):
+        return self.nome

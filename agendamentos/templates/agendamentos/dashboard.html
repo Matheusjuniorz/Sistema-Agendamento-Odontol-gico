@@ -1,0 +1,237 @@
+{% extends 'agendamentos/base.html' %}
+
+{% block content %}
+<style>
+    /* Estilos Específicos do Dashboard */
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.9);
+    }
+    [data-theme="dark"] {
+        --glass-bg: rgba(30, 33, 37, 0.9);
+    }
+
+    .performance-header { 
+        background: var(--bg-card); 
+        padding: 2.5rem 0; 
+        border-radius: 0 0 30px 30px; 
+        box-shadow: 0 10px 30px var(--shadow);
+        border-bottom: 1px solid var(--border-color);
+        margin-top: -20px; /* Alinhamento com a navbar */
+    }
+    
+    .nav-pills-custom .nav-link {
+        color: var(--text-muted);
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 10px 25px;
+        transition: 0.3s;
+    }
+    .nav-pills-custom .nav-link.active {
+        background-color: var(--primary-blue);
+        color: white;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+
+    .card-report { 
+        background: var(--bg-card);
+        border: 1px solid var(--border-color); 
+        border-radius: 20px; 
+        transition: 0.3s; 
+    }
+    .card-report:hover { transform: translateY(-5px); }
+
+    .card-mes-atual { 
+        background: linear-gradient(145deg, var(--bg-card), rgba(13, 110, 253, 0.05));
+        border: 2px solid var(--primary-blue) !important; 
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .year-select { 
+        border-radius: 12px; 
+        font-weight: 700; 
+        border: 2px solid var(--border-color);
+        background-color: var(--bg-card);
+        color: var(--text-main);
+    }
+
+    /* Gráfico de progresso slim */
+    .progress-slim { height: 6px; border-radius: 10px; background-color: var(--border-color); }
+</style>
+
+<div class="performance-header mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-2">
+                        <li class="breadcrumb-item small"><a href="{% url 'index' %}" class="text-decoration-none">Home</a></li>
+                        <li class="breadcrumb-item small active">Relatórios</li>
+                    </ol>
+                </nav>
+                <h1 class="h2 fw-bold m-0"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Performance</h1>
+                <p class="text-muted m-0">Análise detalhada do ano de <strong>{{ ano_selecionado }}</strong></p>
+            </div>
+            
+            <div class="col-md-6 d-flex justify-content-md-end align-items-center gap-3 mt-4 mt-md-0">
+                <form method="GET" class="d-flex align-items-center">
+                    <select name="ano" class="form-select year-select shadow-sm" onchange="this.form.submit()">
+                        {% for a in anos %}
+                            <option value="{{ a }}" {% if a == ano_selecionado %}selected{% endif %}>📅 {{ a }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+
+                <div class="dropdown">
+                    <button class="btn btn-success dropdown-toggle fw-bold px-4 shadow-sm" style="border-radius: 12px;" data-bs-toggle="dropdown">
+                        <i class="bi bi-download me-2"></i>Exportar
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
+                        <li><a class="dropdown-item py-2" href="{% url 'exportar_pdf' %}?periodo=dia"><i class="bi bi-file-pdf me-2 text-danger"></i>Relatório Diário</a></li>
+                        <li><a class="dropdown-item py-2" href="{% url 'exportar_pdf' %}?periodo=mes"><i class="bi bi-file-pdf me-2 text-danger"></i>Mensal (Atual)</a></li>
+                        <li><a class="dropdown-item py-2" href="{% url 'exportar_pdf' %}?periodo=ano&ano={{ ano_selecionado }}"><i class="bi bi-file-pdf me-2 text-danger"></i>Anual Completo</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="d-flex justify-content-center mb-5">
+        <ul class="nav nav-pills nav-pills-custom bg-white dark-bg-dark p-2 shadow-sm rounded-4" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="hoje-tab" data-bs-toggle="tab" data-bs-target="#hoje" type="button">Diário</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="mensal-tab" data-bs-toggle="tab" data-bs-target="#mensal" type="button">Mensal</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="anual-tab" data-bs-toggle="tab" data-bs-target="#anual" type="button">Anual</button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="hoje" role="tabpanel">
+            <div class="card card-report border-0 shadow-sm overflow-hidden">
+                <div class="card-header bg-transparent border-0 p-4 pb-0">
+                    <h5 class="fw-bold m-0"><i class="bi bi-clock-history me-2 text-primary"></i>Agenda de Hoje</h5>
+                </div>
+                <div class="table-responsive p-4">
+                    <table class="table align-middle">
+                        <thead class="text-muted small text-uppercase">
+                            <tr>
+                                <th>Horário</th>
+                                <th>Paciente</th>
+                                <th>Dentista</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in consultas_hoje %}
+                            <tr class="border-bottom-0">
+                                <td class="fw-bold text-primary fs-5">{{ c.data_hora|date:"H:i" }}</td>
+                                <td>
+                                    <div class="fw-bold">{{ c.paciente.nome }}</div>
+                                    <small class="text-muted">{{ c.procedimento.nome }}</small>
+                                </td>
+                                <td>Dr(a). {{ c.dentista.nome }}</td>
+                                <td class="text-center">
+                                    <span class="badge {% if c.status == 'concluido' %}bg-success-subtle text-success{% else %}bg-primary-subtle text-primary{% endif %} px-3 py-2">
+                                        {{ c.status|upper }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-5 text-muted">Nenhuma atividade hoje.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="mensal" role="tabpanel">
+            <div class="row g-4">
+                {% for item in relatorio_mensal %}
+                <div class="col-md-4">
+                    <div class="card card-report p-4 {% if item.mes == hoje.month and ano_selecionado == hoje.year %}card-mes-atual{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold m-0">{{ item.nome_mes }}</h5>
+                            <div class="stat-icon bg-primary-subtle text-primary">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Taxa de Eficiência</span>
+                                <span class="fw-bold text-primary">{% widthratio item.concluidos item.total 100 %}%</span>
+                            </div>
+                            <div class="progress progress-slim">
+                                <div class="progress-bar bg-primary" style="width: {% widthratio item.concluidos item.total 100 %}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="row text-center g-2">
+                            <div class="col-4">
+                                <div class="p-2 rounded bg-light dark-bg-body">
+                                    <small class="text-muted d-block">Total</small>
+                                    <span class="fw-bold text-main">{{ item.total }}</span>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 rounded bg-success-subtle">
+                                    <small class="text-success d-block">OK</small>
+                                    <span class="fw-bold text-success">{{ item.concluidos }}</span>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 rounded bg-danger-subtle">
+                                    <small class="text-danger d-block">Canc.</small>
+                                    <span class="fw-bold text-danger">{{ item.cancelados }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="anual" role="tabpanel">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card card-report p-5 bg-primary text-white border-0">
+                        <div class="stat-icon bg-white bg-opacity-25 mb-3">
+                            <i class="bi bi-activity text-white"></i>
+                        </div>
+                        <h6 class="text-uppercase opacity-75 fw-bold">Atendimentos {{ ano_selecionado }}</h6>
+                        <h1 class="display-3 fw-bold m-0">{{ total_ano }}</h1>
+                        <p class="m-0 mt-3"><i class="bi bi-arrow-up-right me-1"></i> Volume total de pacientes atendidos</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-report p-5 bg-dark text-white border-0">
+                        <div class="stat-icon bg-secondary mb-3">
+                            <i class="bi bi-people-fill text-white"></i>
+                        </div>
+                        <h6 class="text-uppercase opacity-75 fw-bold">Base de Clientes Ativos</h6>
+                        <h1 class="display-3 fw-bold m-0">{{ pacientes_novos }}</h1>
+                        <p class="m-0 mt-3 text-muted">Prontuários registrados no sistema</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

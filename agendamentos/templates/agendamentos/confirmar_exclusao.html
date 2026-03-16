@@ -1,11 +1,109 @@
-<div class="container mt-5">
-    <div class="card p-4 mx-auto" style="max-width: 500px;">
-        <h3>Tem certeza?</h3>
-        <p>Você está prestes a excluir o agendamento de <strong>{{ agendamento.paciente.nome }}</strong>.</p>
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Sim, Excluir</button>
-            <a href="{% url 'index' %}" class="btn btn-secondary">Cancelar</a>
-        </form>
+{% extends 'agendamentos/base.html' %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 75vh;">
+    <div class="delete-card shadow-lg animate__animated animate__zoomIn">
+        <div class="danger-line"></div>
+        
+        <div class="p-5 text-center">
+            <div class="icon-box-calendar mb-4">
+                <i class="bi bi-calendar-x display-3 text-danger"></i>
+            </div>
+            
+            <h3 class="fw-bold mb-3">Remover da Agenda?</h3>
+            
+            <div class="appointment-details mb-4">
+                <p class="text-muted mb-1 small text-uppercase fw-bold">Compromisso de:</p>
+                <h5 class="fw-bold text-main">{{ agendamento.paciente.nome }}</h5>
+                <hr class="my-2 opacity-25">
+                <div class="d-flex justify-content-center gap-3 small">
+                    <span><i class="bi bi-clock me-1 text-primary"></i>{{ agendamento.data_hora|date:"H:i" }}</span>
+                    <span><i class="bi bi-calendar-event me-1 text-primary"></i>{{ agendamento.data_hora|date:"d/m/Y" }}</span>
+                </div>
+            </div>
+
+            <div class="alert alert-danger-subtle border-0 py-2 mb-4" style="border-radius: 12px;">
+                <p class="small m-0">
+                    O horário ficará disponível para outros pacientes.
+                </p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn btn-danger btn-lg py-3 fw-bold shadow-sm action-btn">
+                        <i class="bi bi-calendar-minus me-2"></i> Confirmar Remoção
+                    </button>
+                    <a href="{% url 'index' %}" class="btn btn-link text-muted text-decoration-none fw-semibold">
+                        Manter Agendamento
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+<style>
+    /* Card seguindo o padrão das páginas anteriores */
+    .delete-card {
+        background: var(--bg-card);
+        border-radius: 24px;
+        overflow: hidden;
+        width: 100%;
+        max-width: 460px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+    .danger-line {
+        height: 8px;
+        background: linear-gradient(90deg, #dc3545, #fd7e14);
+    }
+
+    .icon-box-calendar {
+        background: rgba(220, 53, 69, 0.08);
+        width: 110px;
+        height: 110px;
+        border-radius: 20px; /* Estilo quadrado arredondado para lembrar calendário */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        transform: rotate(-3deg);
+    }
+
+    .appointment-details {
+        background: var(--bg-body);
+        padding: 20px;
+        border-radius: 18px;
+        border: 1px solid var(--border-color);
+    }
+
+    .action-btn {
+        border-radius: 15px;
+        transition: 0.3s;
+        border: none;
+    }
+
+    .action-btn:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3) !important;
+    }
+
+    /* Animação ZoomIn */
+    .animate__zoomIn {
+        animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes zoomIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Estilo para o Dark Mode */
+    [data-theme="dark"] .appointment-details {
+        background-color: rgba(255, 255, 255, 0.03);
+    }
+</style>
+{% endblock %}

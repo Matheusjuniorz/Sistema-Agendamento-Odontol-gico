@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -5,158 +6,227 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agenda do Consultório</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
     <style>
-        body { background-color: #f0f2f5; padding-top: 30px; }
-        .container { max-width: 1100px; }
-        .card { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .card-stats { transition: 0.3s; border-left: 5px solid #0d6efd; }
+        :root {
+            --bg-body: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-main: #1a1d20;
+            --text-muted: #6c757d;
+            --primary-blue: #0d6efd;
+            --border-color: #dee2e6;
+            --table-hover: #f8f9fa;
+            --shadow: rgba(0,0,0,0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #121416;
+            --bg-card: #1e2125;
+            --text-main: #f8f9fa;
+            --text-muted: #adb5bd;
+            --primary-blue: #3d8bfd;
+            --border-color: #373b3e;
+            --table-hover: #2c3034;
+            --shadow: rgba(0,0,0,0.3);
+        }
+
+        body { 
+            background-color: var(--bg-body); 
+            color: var(--text-main);
+            padding-top: 30px; 
+            font-family: 'Inter', sans-serif; 
+            transition: all 0.3s ease; 
+        }
+
+        .container { max-width: 1200px; }
+        
+        .card { 
+            background-color: var(--bg-card); 
+            border: none; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px var(--shadow); 
+            color: var(--text-main);
+        }
+        
+        .card-stats { transition: 0.3s; border-left: 5px solid var(--primary-blue); border-radius: 12px; }
         .card-stats:hover { transform: translateY(-5px); }
-        .table thead { background-color: #0d6efd; color: white; }
-        .btn-novo { border-radius: 30px; padding: 10px 25px; font-weight: bold; font-size: 0.9em; }
-        .status-badge { font-size: 0.85em; padding: 5px 10px; border-radius: 20px; }
-        .btn-action { padding: 6px 10px; border-radius: 8px; transition: 0.2s; text-decoration: none; display: inline-block; }
-        .btn-action:hover { transform: scale(1.1); }
-        .search-bar { border-radius: 20px 0 0 20px; }
-        .search-btn { border-radius: 0 20px 20px 0; }
-        .user-link:hover { opacity: 0.8; }
-        .age-badge { font-size: 0.7em; background-color: #e9ecef; color: #495057; padding: 2px 6px; border-radius: 4px; font-weight: normal; }
+        
+        .table { color: var(--text-main); }
+        .table thead { background-color: var(--table-hover); color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+        .agenda-row { transition: 0.2s; border-bottom: 1px solid var(--border-color) !important; }
+        .agenda-row:hover { background-color: var(--table-hover); }
+        
+        .theme-toggle {
+            width: 38px; height: 38px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; background: var(--bg-card);
+            border: 1px solid var(--border-color); transition: 0.3s;
+            color: var(--primary-blue);
+        }
+        .theme-toggle:hover { transform: scale(1.1); box-shadow: 0 0 10px var(--primary-blue); }
+
+        .status-indicator { width: 6px; padding: 0 !important; }
+        .status-agendado { background-color: #0dcaf0; }
+        .status-concluido { background-color: #198754; }
+        .status-cancelado { background-color: #dc3545; }
+
+        /* Padronização dos Botões Superiores */
+        .btn-novo { 
+            border-radius: 10px; 
+            padding: 8px 20px; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: 0.3s;
+        }
+        .btn-novo:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+        .status-badge { font-size: 0.75em; padding: 5px 10px; border-radius: 6px; font-weight: 800; text-transform: uppercase; }
+        
+        /* Botões de Ação na Tabela */
+        .btn-action { 
+            width: 34px; height: 34px; 
+            display: inline-flex; align-items: center; justify-content: center; 
+            border-radius: 10px; transition: 0.2s; border: none;
+            text-decoration: none;
+        }
+        .btn-action:hover { filter: brightness(0.9); transform: scale(1.1); }
+        
+        .search-bar { background-color: var(--bg-body); border-color: var(--border-color); color: var(--text-main); border-radius: 10px 0 0 10px; }
+        .search-bar:focus { background-color: var(--bg-card); color: var(--text-main); box-shadow: none; border-color: var(--primary-blue); }
+        .age-badge { font-size: 0.7em; background-color: var(--table-hover); color: var(--text-muted); padding: 2px 6px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container animate__animated animate__fadeIn">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="theme-toggle" id="themeBtn" title="Alternar Tema">
+                <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+            </div>
             <small class="text-muted">
-                Bem-vindo, 
-                <a href="{% url 'perfil' %}" class="text-decoration-none fw-bold text-primary user-link" title="Editar Perfil">
-                    👤 {{ user.username }}
-                </a>
+                <i class="bi bi-person-circle text-primary"></i> 
+                <strong>{{ user.username }}</strong>
+                {% if user.is_superuser %}<span class="badge bg-dark ms-1" style="font-size: 0.6em;">ADMIN</span>{% endif %}
             </small>
-            {% if user.is_superuser %}
-                <span class="badge bg-dark ms-2" style="font-size: 0.7em;">Administrador</span>
-            {% endif %}
         </div>
         <form action="{% url 'logout' %}" method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-link btn-sm text-danger text-decoration-none p-0">Sair do Sistema</button>
+            <button type="submit" class="btn btn-link btn-sm text-danger text-decoration-none p-0 fw-bold">
+                SAIR <i class="bi bi-box-arrow-right"></i>
+            </button>
         </form>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 text-secondary m-0">🦷 Agenda do Consultório</h1>
-        <div class="d-flex gap-2">
-            <a href="{% url 'gerar_relatorio_pdf' %}" class="btn btn-outline-secondary btn-novo shadow-sm" target="_blank">
-                🖨️ PDF
-            </a>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h1 class="h3 fw-bold m-0 text-main"><i class="bi bi-calendar-check text-primary"></i> Agenda do Consultório</h1>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-primary btn-novo shadow-sm"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="{% url 'novo_agendamento' %}" class="btn btn-primary btn-novo shadow-sm"><i class="bi bi-plus-lg"></i> Novo</a>
             
-            <div class="btn-group">
-                <a href="{% url 'lista_pacientes' %}" class="btn btn-outline-success btn-novo shadow-sm" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                    👥 Pacientes
-                </a>
-                <a href="{% url 'novo_dentista' %}" class="btn btn-outline-info btn-novo shadow-sm" style="border-radius: 0;">
-                    + Dentista
-                </a>
-                <a href="{% url 'novo_paciente' %}" class="btn btn-outline-primary btn-novo shadow-sm" style="border-radius: 0;">
-                    + Paciente
-                </a>
-                <a href="{% url 'novo_agendamento' %}" class="btn btn-primary btn-novo shadow-sm" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                    + Agendamento
-                </a>
+            <div class="dropdown">
+                <button class="btn btn-dark btn-novo dropdown-toggle shadow-sm" data-bs-toggle="dropdown">
+                    <i class="bi bi-grid-fill"></i> Sistema
+                </button>
+                <ul class="dropdown-menu border-0 shadow-lg">
+                    <li><h6 class="dropdown-header">Cadastros</h6></li>
+                    <li><a class="dropdown-item py-2" href="{% url 'lista_dentistas' %}">👨‍⚕️ Dentistas</a></li>
+                    <li><a class="dropdown-item py-2" href="{% url 'lista_pacientes' %}">👥 Pacientes</a></li>
+                    <li><a class="dropdown-item py-2" href="{% url 'procedimentos_lista' %}">⚙️ Procedimentos</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item py-2" href="{% url 'perfil' %}"><i class="bi bi-person-gear me-2"></i>Configurações</a></li>
+                    <li><a class="dropdown-item py-2 text-primary" href="{% url 'gerar_relatorio_pdf' %}" target="_blank"><i class="bi bi-printer me-2"></i>Imprimir Agenda</a></li>
+                </ul>
             </div>
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card card-stats p-3 bg-white">
-                <small class="text-muted fw-bold">TOTAL GERAL</small>
-                <h3 class="m-0 text-primary">{{ total_agendados }}</h3>
+    <div class="row mb-4 g-3">
+        <div class="col-md-3 col-6">
+            <div class="card card-stats p-3">
+                <small class="text-muted fw-bold">TOTAL HOJE</small>
+                <h3 class="m-0 fw-bold text-primary">{{ total_agendados }}</h3>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-stats p-3 bg-white" style="border-left-color: #ffc107;">
+        <div class="col-md-3 col-6">
+            <div class="card card-stats p-3" style="border-left-color: #0dcaf0;">
                 <small class="text-muted fw-bold">PENDENTES</small>
-                <h3 class="m-0 text-warning">{{ total_pendentes }}</h3>
+                <h3 class="m-0 fw-bold text-info">{{ total_pendentes }}</h3>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-stats p-3 bg-white" style="border-left-color: #198754;">
+        <div class="col-md-3 col-6">
+            <div class="card card-stats p-3" style="border-left-color: #198754;">
                 <small class="text-muted fw-bold">CONCLUÍDOS</small>
-                <h3 class="m-0 text-success">{{ total_concluidos }}</h3>
+                <h3 class="m-0 fw-bold text-success">{{ total_concluidos }}</h3>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-stats p-3 bg-white" style="border-left-color: #6c757d;">
-                <small class="text-muted fw-bold">BUSCAR NA AGENDA</small>
-                <form method="GET" class="d-flex mt-1">
-                    <input type="text" name="search" class="form-control form-control-sm search-bar" placeholder="Nome do paciente..." value="{{ request.GET.search }}">
-                    <button type="submit" class="btn btn-primary btn-sm search-btn">🔎</button>
+        <div class="col-md-3 col-6">
+            <div class="card p-3 shadow-sm h-100 d-flex flex-column justify-content-center">
+                <form method="GET" class="d-flex">
+                    <input type="text" name="search" class="form-control form-control-sm search-bar" placeholder="Buscar..." value="{{ request.GET.search }}">
+                    <button type="submit" class="btn btn-primary btn-sm rounded-end"><i class="bi bi-search"></i></button>
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="card p-4">
+    <div class="card overflow-hidden">
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="border-0">Data e Hora</th>
-                        <th class="border-0">Paciente</th>
-                        <th class="border-0">Dentista</th>
-                        <th class="border-0 text-center">Status</th>
-                        <th class="border-0 text-center">Ações</th>
+                        <th class="status-indicator"></th>
+                        <th class="ps-3">Hora</th>
+                        <th>Paciente</th>
+                        <th>Dentista</th>
+                        <th>Procedimento</th>
+                        <th>Valor</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end pe-4">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for consulta in consultas %}
-                    <tr>
-                        <td class="fw-bold text-dark">{{ consulta.data_hora|date:"d/m/Y - H:i" }}</td>
+                    <tr class="agenda-row">
+                        <td class="status-indicator {% if consulta.status == 'agendado' %}status-agendado{% elif consulta.status == 'concluido' %}status-concluido{% else %}status-cancelado{% endif %}"></td>
+                        <td class="ps-3 fw-bold">
+                            {{ consulta.data_hora|date:"H:i" }} <br> 
+                            <small class="text-muted fw-normal" style="font-size: 0.7em;">{{ consulta.data_hora|date:"d/m/y" }}</small>
+                        </td>
                         <td>
                             <div class="d-flex flex-column">
-                                <span class="fw-medium">{{ consulta.paciente.nome }}</span>
-                                <div><span class="age-badge">{{ consulta.paciente.idade }} anos</span></div>
+                                <span class="fw-bold">{{ consulta.paciente.nome }}</span>
+                                <div>
+                                    <span class="age-badge">{{ consulta.paciente.idade }} anos</span>
+                                    {% if consulta.paciente.idade <= 12 %}<span class="badge bg-warning text-dark" style="font-size: 0.55rem;">KIDS</span>{% endif %}
+                                </div>
                             </div>
                         </td>
-                        <td>Dr(a). {{ consulta.dentista.nome }}</td>
+                        <td><span class="text-muted fw-medium">Dr. {{ consulta.dentista.nome|truncatechars:15 }}</span></td> 
+                        <td><small class="fw-semibold text-secondary">{{ consulta.procedimento.nome }}</small></td>
+                        <td class="fw-bold text-success">R$ {{ consulta.valor_final }}</td>
                         <td class="text-center">
                             {% if consulta.status == 'agendado' %}
-                                <span class="badge bg-info text-dark status-badge">Agendado</span>
+                                <span class="status-badge bg-info-subtle text-info">AGENDADO</span>
                             {% elif consulta.status == 'concluido' %}
-                                <span class="badge bg-success status-badge">Concluído</span>
+                                <span class="status-badge bg-success-subtle text-success">CONCLUÍDO</span>
                             {% else %}
-                                <span class="badge bg-danger status-badge">Cancelado</span>
+                                <span class="status-badge bg-danger-subtle text-danger">CANCELADO</span>
                             {% endif %}
                         </td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center gap-2">
-                                {% if consulta.status == 'agendado' %}
-                                <a href="{% url 'concluir_agendamento' consulta.pk %}" class="btn btn-outline-success btn-sm btn-action" title="Concluir Agora">
-                                    ✅
-                                </a>
-                                {% endif %}
-
-                                <a href="{% url 'editar_agendamento' consulta.pk %}" class="btn btn-outline-warning btn-sm btn-action" title="Editar Agendamento">
-                                    ✏️
-                                </a>
-                                <a href="{% url 'excluir_agendamento' consulta.pk %}" class="btn btn-outline-danger btn-sm btn-action" title="Excluir Agendamento">
-                                    🗑️
-                                </a>
+                        <td class="text-end pe-4">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'imprimir_ficha_consulta' consulta.pk %}" class="btn-action bg-light text-dark border shadow-sm" title="Ficha"><i class="bi bi-printer"></i></a>
+                                <a href="{% url 'editar_agendamento' consulta.pk %}" class="btn-action bg-warning-subtle text-warning shadow-sm" title="Editar"><i class="bi bi-pencil-fill"></i></a>
+                                <a href="{% url 'excluir_agendamento' consulta.pk %}" class="btn-action bg-danger-subtle text-danger shadow-sm" title="Excluir"><i class="bi bi-trash-fill"></i></a>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            {% if request.GET.search %}
-                                🔍 Nenhum agendamento encontrado para "<strong>{{ request.GET.search }}</strong>".
-                                <br><a href="{% url 'index' %}" class="btn btn-link btn-sm mt-2">Limpar busca</a>
-                            {% else %}
-                                📅 Não há consultas registradas no momento.
-                            {% endif %}
-                        </td>
-                    </tr>
+                    <tr><td colspan="8" class="text-center py-5 text-muted">Nenhum agendamento encontrado para hoje.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -165,5 +235,31 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const themeBtn = document.getElementById('themeBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    updateIcon(savedTheme);
+
+    themeBtn.addEventListener('click', () => {
+        let currentTheme = html.getAttribute('data-theme');
+        let newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateIcon(newTheme);
+    });
+
+    function updateIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
+        } else {
+            themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
+        }
+    }
+</script>
 </body>
 </html>

@@ -1,94 +1,131 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil - Consultório</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f0f2f5; }
-        .card { border-radius: 20px; }
-        .btn-round { border-radius: 30px; font-weight: bold; }
-        .section-title { font-size: 0.8rem; letter-spacing: 1px; }
-    </style>
-</head>
-<body class="bg-light">
+{% extends 'agendamentos/base.html' %}
 
-<div class="container py-5">
+{% block content %}
+<div class="container animate__animated animate__fadeIn">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow border-0">
-                <div class="card-body p-5">
-                    <h2 class="fw-bold text-primary mb-4">👤 Meu Perfil</h2>
-                    
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show small" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <h2 class="fw-bold mb-1" style="color: var(--text-main);">Configurações de <span class="text-primary">Perfil</span></h2>
+                <p class="text-muted small">Gerencie suas informações pessoais e credenciais de acesso</p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 12px;">
+                        <i class="bi bi-check-circle-fill me-2"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; background: var(--bg-card);">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="icon-shape bg-primary-subtle text-primary me-3">
+                                    <i class="bi bi-person-vcard"></i>
+                                </div>
+                                <h5 class="fw-bold mb-0" style="color: var(--text-main);">Dados Pessoais</h5>
                             </div>
-                        {% endfor %}
-                    {% endif %}
 
-                    <div class="mb-4">
-                        <h4 class="section-title fw-bold text-uppercase text-muted mb-3">Dados da Conta</h4>
-                        <form method="post">
-                            {% csrf_token %}
-                            {% for field in form_perfil %}
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-secondary">{{ field.label }}</label>
-                                    {{ field }}
-                                    {% if field.errors %}
-                                        <div class="text-danger small">{{ field.errors }}</div>
-                                    {% endif %}
-                                    <script>
-                                        document.getElementsByName("{{ field.name }}")[0].classList.add("form-control");
-                                    </script>
-                                </div>
-                            {% endfor %}
-                            <button type="submit" name="btn_perfil" class="btn btn-outline-primary btn-round w-100 mt-2">
-                                Salvar Alterações
-                            </button>
-                        </form>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div>
-                        <h4 class="section-title fw-bold text-uppercase text-muted mb-3">Segurança</h4>
-                        <form method="post">
-                            {% csrf_token %}
-                            {% for field in form_senha %}
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-secondary">{{ field.label }}</label>
-                                    {{ field }}
-                                    {% if field.errors %}
-                                        <div class="text-danger small">{{ field.errors }}</div>
-                                    {% endif %}
-                                    <script>
-                                        // O seletor de índice [1] garante que pegamos o campo do segundo formulário se houver nomes repetidos
-                                        var inputs = document.getElementsByName("{{ field.name }}");
-                                        inputs[inputs.length - 1].classList.add("form-control");
-                                    </script>
-                                </div>
-                            {% endfor %}
-                            <button type="submit" name="btn_senha" class="btn btn-primary btn-round w-100 mt-2 shadow-sm">
-                                Atualizar Senha
-                            </button>
-                        </form>
-                    </div>
-                    
-                    <div class="text-center mt-5">
-                        <a href="{% url 'index' %}" class="text-decoration-none small text-secondary">
-                            ← Voltar para a Agenda
-                        </a>
+                            <form method="post">
+                                {% csrf_token %}
+                                {% for field in form_perfil %}
+                                    <div class="mb-3 custom-form-group">
+                                        <label class="form-label small fw-bold text-muted text-uppercase">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="text-danger extra-small mt-1">{{ field.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit" name="btn_perfil" class="btn btn-primary w-100 fw-bold py-2 mt-3" style="border-radius: 12px;">
+                                    Atualizar Dados
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
+
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; background: var(--bg-card);">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="icon-shape bg-warning-subtle text-warning me-3">
+                                    <i class="bi bi-shield-lock"></i>
+                                </div>
+                                <h5 class="fw-bold mb-0" style="color: var(--text-main);">Segurança</h5>
+                            </div>
+
+                            <form method="post">
+                                {% csrf_token %}
+                                {% for field in form_senha %}
+                                    <div class="mb-3 custom-form-group">
+                                        <label class="form-label small fw-bold text-muted text-uppercase">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="text-danger extra-small mt-1">{{ field.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit" name="btn_senha" class="btn btn-outline-warning w-100 fw-bold py-2 mt-3" style="border-radius: 12px;">
+                                    Alterar Senha
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="{% url 'index' %}" class="btn btn-link text-muted text-decoration-none small fw-bold">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar para a Agenda
+                </a>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<style>
+    /* Estilização dos Inputs do Django sem JS */
+    .custom-form-group input {
+        display: block;
+        width: 100%;
+        padding: 0.6rem 0.85rem;
+        font-size: 0.9rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--text-main);
+        background-color: var(--bg-body);
+        background-clip: padding-box;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .custom-form-group input:focus {
+        border-color: #0d6efd;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+    }
+
+    .icon-shape {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 1.2rem;
+    }
+
+    .extra-small { font-size: 0.75rem; }
+
+    /* Estilo para alertas */
+    .alert-success { background-color: #d1e7dd; color: #0f5132; }
+    
+    [data-theme="dark"] .bg-primary-subtle { background-color: rgba(13, 110, 253, 0.15) !important; }
+    [data-theme="dark"] .bg-warning-subtle { background-color: rgba(255, 193, 7, 0.15) !important; }
+</style>
+{% endblock %}

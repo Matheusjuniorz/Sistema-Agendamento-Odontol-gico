@@ -1,0 +1,112 @@
+{% extends 'agendamentos/base.html' %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="card shadow-lg border-0 animate__animated animate__fadeInDown" 
+         style="max-width: 500px; border-radius: 25px; background: var(--bg-card);">
+        
+        <div class="p-4 text-center border-bottom" style="border-color: var(--border-color) !important;">
+            <div class="icon-box-service bg-primary-subtle text-primary mb-3 mx-auto">
+                <i class="bi bi-plus-square-dotted fs-2"></i>
+            </div>
+            <h2 class="fw-bold h4 m-0" style="color: var(--primary-blue);">Novo Procedimento</h2>
+            <p class="text-muted small mb-0">Cadastre um novo serviço na sua tabela de preços</p>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2 ms-1">
+                            {{ field.label }}
+                        </label>
+                        
+                        <div class="input-group-modern">
+                            {{ field }}
+                        </div>
+
+                        <script>
+                            var input = document.getElementsByName("{{ field.name }}")[0];
+                            if (input) {
+                                input.classList.add("form-control", "modern-input-field");
+                                // Adiciona o R$ visualmente no campo de valor se necessário
+                                if ("{{ field.name }}" == "valor") {
+                                    input.placeholder = "0,00";
+                                }
+                            }
+                        </script>
+                        
+                        {% if field.errors %}
+                            <div class="text-danger extra-small mt-2 animate__animated animate__shakeX">
+                                <i class="bi bi-exclamation-circle me-1"></i>
+                                {% for error in field.errors %}{{ error|striptags }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="d-grid gap-3 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold shadow-sm save-service-btn">
+                        <i class="bi bi-save2 me-2"></i> Registrar Serviço
+                    </button>
+                    
+                    <a href="{% url 'procedimentos_lista' %}" class="btn btn-link text-muted text-decoration-none small">
+                        <i class="bi bi-arrow-left me-1"></i> Voltar para a Lista
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos para manter a consistência com o restante do sistema */
+    .icon-box-service {
+        width: 70px;
+        height: 70px;
+        background: var(--bg-body);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border-color);
+    }
+
+    .modern-input-field {
+        background-color: var(--bg-body) !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 12px !important;
+        padding: 12px 15px !important;
+        color: var(--text-main) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modern-input-field:focus {
+        border-color: var(--primary-blue) !important;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1) !important;
+        background-color: var(--bg-card) !important;
+        transform: scale(1.01);
+    }
+
+    .save-service-btn {
+        border-radius: 15px;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, #004dc7 100%);
+        border: none;
+        transition: 0.3s;
+    }
+
+    .save-service-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3) !important;
+    }
+
+    .extra-small { font-size: 0.75rem; }
+
+    /* Ajuste fino para Dark Mode */
+    [data-theme="dark"] .modern-input-field {
+        background-color: #1a1d20 !important;
+    }
+</style>
+{% endblock %}

@@ -1,36 +1,108 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Cadastrar Dentista</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f0f2f5; display: flex; align-items: center; min-height: 100vh; }
-        .form-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 500px; }
-    </style>
-</head>
-<body>
-    <div class="container d-flex justify-content-center">
-        <div class="form-card">
-            <h2 class="text-secondary mb-4 text-center">🩺 Novo Dentista</h2>
+{% extends 'agendamentos/base.html' %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="card shadow-lg border-0 animate__animated animate__zoomIn" style="max-width: 520px; border-radius: 25px; background: var(--bg-card);">
+        
+        <div class="bg-primary py-2" style="border-radius: 25px 25px 0 0;"></div>
+
+        <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="doctor-icon-container mb-3 shadow-sm mx-auto">
+                    <i class="bi bi-person-badge text-primary display-5"></i>
+                </div>
+                <h3 class="fw-bold m-0" style="color: var(--text-main);">Novo Profissional</h3>
+                <p class="text-muted small">Adicione um novo dentista à equipe clínica</p>
+            </div>
+
             <form method="post">
                 {% csrf_token %}
+
                 {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">{{ field.label }}</label>
-                        {{ field }}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2 ms-1" style="letter-spacing: 0.5px;">
+                            {{ field.label }}
+                        </label>
+                        
+                        <div class="input-group-modern">
+                            {{ field }}
+                        </div>
+                        
                         <script>
-                            // Adiciona a classe do bootstrap em todos os inputs automaticamente
-                            document.getElementsByName("{{ field.name }}")[0].classList.add("form-control");
+                            document.getElementsByName("{{ field.name }}")[0].classList.add("form-control", "modern-input");
+                            document.getElementsByName("{{ field.name }}")[0].placeholder = "Digite o {{ field.label|lower }}...";
                         </script>
+
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1 animate__animated animate__headShake">
+                                {% for error in field.errors %}<i class="bi bi-info-circle me-1"></i>{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary shadow-sm" style="border-radius: 30px; font-weight: bold;">Salvar Profissional</button>
-                    <a href="{% url 'index' %}" class="btn btn-link text-muted">Cancelar</a>
+
+                <div class="d-grid gap-3 mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold shadow-lg professional-btn">
+                        <i class="bi bi-person-check me-2"></i> Finalizar Cadastro
+                    </button>
+                    
+                    <a href="{% url 'lista_dentistas' %}" class="btn btn-outline-secondary py-2 border-0 small fw-semibold">
+                        <i class="bi bi-arrow-left me-1"></i> Voltar para a Lista
+                    </a>
                 </div>
             </form>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<style>
+    /* Estilos de Software Médico Moderno */
+    .doctor-icon-container {
+        width: 85px;
+        height: 85px;
+        background: var(--bg-body);
+        border-radius: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border-color);
+    }
+
+    .modern-input {
+        background-color: var(--bg-body) !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 12px !important;
+        padding: 12px 15px !important;
+        color: var(--text-main) !important;
+        transition: all 0.3s ease;
+    }
+
+    .modern-input:focus {
+        border-color: var(--primary-blue) !important;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1) !important;
+        background-color: var(--bg-card) !important;
+    }
+
+    .professional-btn {
+        border-radius: 16px;
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .professional-btn:hover {
+        transform: scale(1.02);
+        box-shadow: 0 12px 25px rgba(13, 110, 253, 0.3) !important;
+    }
+
+    /* Animação suave */
+    .animate__zoomIn {
+        animation-duration: 0.5s;
+    }
+
+    /* Ajuste de cor para Dark Mode */
+    [data-theme="dark"] .modern-input {
+        background-color: #1a1d20 !important;
+    }
+</style>
+{% endblock %}

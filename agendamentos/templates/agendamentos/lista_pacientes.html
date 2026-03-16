@@ -1,72 +1,145 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Lista de Pacientes - Consultório</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f0f2f5; padding-top: 30px; }
-        .card { border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .table thead { background-color: #198754; color: white; }
-        /* Estilo extra para os botões ficarem mais clicáveis */
-        .btn-sm { border-radius: 8px; transition: 0.2s; }
-        .btn-sm:hover { transform: scale(1.05); }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-success">👥 Lista de Pacientes</h2>
-        <a href="{% url 'index' %}" class="btn btn-outline-secondary">← Voltar para Agenda</a>
+{% extends 'agendamentos/base.html' %}
+
+{% block content %}
+<div class="container animate__animated animate__fadeIn">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: var(--text-main);">Gestão de <span class="text-success">Pacientes</span></h2>
+            <p class="text-muted small mb-0"><i class="bi bi-people"></i> {{ pacientes|length }} registros encontrados</p>
+        </div>
+        <div class="d-flex gap-2">
+            <form method="GET" class="position-relative" style="min-width: 280px;">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                <input type="text" name="search" class="form-control ps-5 shadow-sm border-0" 
+                       placeholder="Buscar por nome ou CPF..." value="{{ request.GET.search }}" 
+                       style="border-radius: 12px; background: var(--bg-card); color: var(--text-main);">
+            </form>
+            <a href="{% url 'novo_paciente' %}" class="btn btn-success rounded-3 shadow-sm px-3">
+                <i class="bi bi-person-plus"></i>
+            </a>
+        </div>
     </div>
 
-    <div class="card p-4">
-        <form method="GET" class="d-flex mb-3" style="max-width: 400px;">
-            <input type="text" name="search" class="form-control" placeholder="Buscar por nome..." value="{{ request.GET.search }}">
-            <button type="submit" class="btn btn-success ms-2">🔎</button>
-        </form>
-
+    <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 20px; background: var(--bg-card);">
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
+            <table class="table align-middle mb-0 table-hover">
+                <thead style="background-color: var(--table-hover);">
                     <tr>
-                        <th>Nome</th>
-                        <th>Idade</th>
-                        <th>CPF</th>
-                        <th>Telefone</th>
-                        <th>E-mail</th>
-                        <th class="text-center">Ações</th>
+                        <th class="ps-4 py-3 text-muted small fw-bold text-uppercase">Paciente</th>
+                        <th class="py-3 text-muted small fw-bold text-uppercase">CPF</th>
+                        <th class="py-3 text-muted small fw-bold text-uppercase">Contato</th>
+                        <th class="py-3 text-muted small fw-bold text-uppercase">E-mail</th>
+                        <th class="pe-4 py-3 text-end text-muted small fw-bold text-uppercase">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for paciente in pacientes %}
-                    <tr>
-                        <td class="fw-bold">{{ paciente.nome }}</td>
-                        <td>{{ paciente.idade }} anos</td>
-                        <td class="text-muted small">{{ paciente.cpf }}</td>
-                        <td>{{ paciente.telefone }}</td>
-                        <td>{{ paciente.email }}</td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center gap-2">
-                                <a href="{% url 'editar_paciente' paciente.pk %}" class="btn btn-sm btn-outline-warning" title="Editar">
-                                    ✏️
+                    <tr class="agenda-row">
+                        <td class="ps-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-3 bg-success-subtle text-success">
+                                    {{ paciente.nome|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <span class="fw-bold d-block mb-0" style="color: var(--text-main);">{{ paciente.nome }}</span>
+                                    <span class="badge bg-light text-dark fw-normal border extra-small">{{ paciente.idade }} anos</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted small font-monospace">{{ paciente.cpf }}</span>
+                        </td>
+                        <td>
+                            {% if paciente.telefone %}
+                                <a href="https://wa.me/55{{ paciente.telefone|cut:' '|cut:'-'|cut:'('|cut:')' }}" 
+                                   target="_blank" class="text-decoration-none text-muted small hover-whatsapp">
+                                    <i class="bi bi-whatsapp text-success me-1"></i> {{ paciente.telefone }}
                                 </a>
-                                
-                                <a href="{% url 'excluir_paciente' paciente.pk %}" class="btn btn-sm btn-outline-danger" title="Excluir">
-                                    🗑️
+                            {% else %}
+                                <span class="text-muted small">---</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-muted small">{{ paciente.email|default:"---" }}</span>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'editar_paciente' paciente.pk %}" class="btn-action-patient edit" title="Editar Prontuário">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="{% url 'excluir_paciente' paciente.pk %}" class="btn-action-patient delete" title="Remover">
+                                    <i class="bi bi-trash3"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center py-4 text-muted">Nenhum paciente encontrado.</td>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-person-exclamation display-4 text-muted mb-3 d-block"></i>
+                            <p class="text-muted">Nenhum paciente encontrado para esta busca.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+
+    <div class="mt-4 d-flex justify-content-between align-items-center">
+        <a href="{% url 'index' %}" class="btn btn-link text-muted text-decoration-none small">
+            <i class="bi bi-arrow-left"></i> Voltar para Agenda
+        </a>
+    </div>
 </div>
-</body>
-</html>
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .extra-small { font-size: 0.65rem; }
+
+    .hover-whatsapp:hover {
+        color: #25d366 !important;
+        text-decoration: underline !important;
+    }
+
+    .btn-action-patient {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+        border: 1px solid var(--border-color);
+        background: var(--bg-card);
+        text-decoration: none;
+    }
+
+    .btn-action-patient.edit { color: #f39c12; }
+    .btn-action-patient.delete { color: #e74c3c; }
+
+    .btn-action-patient:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px var(--shadow);
+        background-color: var(--table-hover);
+    }
+
+    .agenda-row { transition: all 0.2s; }
+    .agenda-row:hover { background-color: var(--table-hover); }
+
+    /* Estilização para Dark Mode */
+    [data-theme="dark"] .bg-success-subtle {
+        background-color: rgba(25, 135, 84, 0.2) !important;
+    }
+</style>
+{% endblock %}

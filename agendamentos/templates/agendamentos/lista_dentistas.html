@@ -1,0 +1,163 @@
+{% extends 'agendamentos/base.html' %}
+
+{% block content %}
+<div class="container animate__animated animate__fadeIn">
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1" style="color: var(--text-main);">Corpo <span class="text-primary">Clínico</span></h1>
+            <p class="text-muted small mb-0"><i class="bi bi-shield-check"></i> Profissionais ativos e credenciados</p>
+        </div>
+        <a href="{% url 'novo_dentista' %}" class="btn btn-primary btn-lg px-4 shadow-sm fw-bold" style="border-radius: 15px;">
+            <i class="bi bi-person-plus-fill me-2"></i> Adicionar Profissional
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px; background: var(--bg-card);">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 table-hover">
+                <thead style="background-color: var(--table-hover);">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 1px;">Profissional</th>
+                        <th class="py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 1px;">Especialidade</th>
+                        <th class="py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 1px;">Registro (CRO)</th>
+                        <th class="py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 1px;">Contato</th>
+                        <th class="pe-4 py-3 text-end text-muted small fw-bold text-uppercase" style="letter-spacing: 1px;">Gestão</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dentista in dentistas %}
+                    <tr class="agenda-row">
+                        <td class="ps-4 py-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-dentista me-3">
+                                    <i class="bi bi-person-badge-fill text-primary"></i>
+                                </div>
+                                <div>
+                                    <span class="fw-bold d-block h6 mb-0" style="color: var(--text-main);">Dr(a). {{ dentista.nome }}</span>
+                                    <span class="text-success extra-small fw-bold"><i class="bi bi-patch-check"></i> Ativo</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="specialty-badge-modern">{{ dentista.especialidade }}</span>
+                        </td>
+                        <td>
+                            <code class="cro-tag">{{ dentista.cro }}</code>
+                        </td>
+                        <td>
+                            {% if dentista.telefone %}
+                                <a href="https://wa.me/55{{ dentista.telefone|cut:' '|cut:'-'|cut:'('|cut:')' }}" 
+                                   target="_blank" class="text-decoration-none contact-link">
+                                    <i class="bi bi-whatsapp me-1"></i> {{ dentista.telefone }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted small">Não informado</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'editar_dentista' dentista.pk %}" class="btn-action-modern edit" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="{% url 'excluir_dentista' dentista.pk %}" class="btn-action-modern delete" title="Remover">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="bi bi-people display-1 text-muted opacity-25"></i>
+                                <p class="text-muted mt-3">Nenhum profissional cadastrado no corpo clínico.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'index' %}" class="btn btn-link text-muted text-decoration-none small fw-bold">
+            <i class="bi bi-arrow-left"></i> Voltar para a Agenda
+        </a>
+    </div>
+</div>
+
+<style>
+    /* Estilos Customizados para Gestão de Dentistas */
+    .avatar-dentista {
+        width: 45px;
+        height: 45px;
+        background: var(--bg-body);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .specialty-badge-modern {
+        background-color: var(--table-hover);
+        color: var(--primary-blue);
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border: 1px solid var(--border-color);
+    }
+
+    .cro-tag {
+        background-color: #f8f9fa;
+        color: #636e72;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    [data-theme="dark"] .cro-tag {
+        background-color: #2d3436;
+        color: #dfe6e9;
+    }
+
+    .contact-link {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        transition: 0.2s;
+    }
+
+    .contact-link:hover {
+        color: #25d366; /* Cor do WhatsApp */
+    }
+
+    .btn-action-modern {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: 0.2s;
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-action-modern.edit { color: #f39c12; background: rgba(243, 156, 18, 0.1); }
+    .btn-action-modern.delete { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+
+    .btn-action-modern:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .extra-small { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .agenda-row { transition: background 0.2s; }
+    .agenda-row:hover { background-color: var(--table-hover); }
+</style>
+{% endblock %}
