@@ -53,23 +53,25 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 python manage.py migrate
 python manage.py runserver
 
-🎨 Interface
+## 🎨 Interface
+
+Aqui estão algumas capturas de tela do sistema em funcionamento:
 
 ![Agenda](./screenshots/agenda.png)
 
 ![Configurações de Perfil](./screenshots/configuracoes_de_perfil.png)
 
-![ Profissionais ativos e credenciados](./screenshots/lista_dentista.png)
+![Profissionais ativos e credenciados](./screenshots/lista_dentista.png)
 
 ![Gestão de Pacientes](./screenshots/lista_pacientes.png)
 
 ![Novo Dentista](./screenshots/novo_dentista.png)
 
-![Configurar Procedimento](./screenshots/novo_procedimentio.png)
+![Configurar Procedimento](./screenshots/novo_procedimento.png)
 
 ![Performance](./screenshots/performance.png)
 
-![Remover da Agenda](./screenshots/remover_da _agenda.png)
+![Remover da Agenda](./screenshots/remover_da_agenda.png)
 
 
 
